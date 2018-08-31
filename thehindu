@@ -1,0 +1,84 @@
+#!/usr/bin/python
+
+import requests, time, json, os, sys
+from bs4 import BeautifulSoup
+from datetime import date,datetime
+import img2pdf
+
+if len(sys.argv)>1:
+	date_obj = datetime.strptime(sys.argv[1],"%d/%m/%Y")
+else:
+	date_obj = date.today()
+
+ses = requests.session()   #create a new session
+
+source = ses.get("https://www.tempmailaddress.com/").text
+email = source[source.find('<span id="email">')+17:source.find("lcelandic.com")+13]  #get new temp email from tempmailaddress[dot]com
+
+
+param = {'password':'indiancatfisher',  #this is your demo account password , change it if you want different one
+'email':email,
+'MobileNumber':'9876543210',
+'username':'catfish',
+'CityId':'4508',
+'StateId':'173'}
+
+
+resp = requests.post("https://epaper.thehindu.com/Login/createuser",data=param)
+if(resp.text.find("check email")>-1):
+	print "--> CREATED",email
+
+print "<<Checking for Activation Link>>"
+time.sleep(5) #wait for 5 seconds to email to arrive in temp email inbox
+
+activate_email = ses.get("https://www.tempmailaddress.com/email/id/2").text #read the activation email
+soup = BeautifulSoup(activate_email,"lxml")
+atags = soup.find_all("a")
+for tag in atags:
+	if tag.text == 'ACTIVATE':  #find the activation link
+		requests.get(tag['href'])           #click on activation link to activate trial subscription account
+		print "--> PASSWRD",param['password']
+		print "<<New Account Created>>"
+
+ses2 = requests.session()   #new session for login
+
+login_page_source = ses2.get("https://epaper.thehindu.com/").text
+soup = BeautifulSoup(login_page_source,"lxml")
+reqtoken = soup.find("input",{'name':'__RequestVerificationToken'}).get('value')
+
+loginparam = {
+	"__RequestVerificationToken":reqtoken,
+	"Email":email,
+	"Password":param['password'],
+	"hiddenTab":"https://epaper.thehindu.com/Home/Index"
+}
+
+ses2.post("https://epaper.thehindu.com/Login/ValidateLogin",data=loginparam)
+ses2.get("https://epaper.thehindu.com/Home/FullPage")   #get essential cookies and values
+resp = json.loads(ses2.get("https://epaper.thehindu.com/Home/GetAllpages?editionid=115&editiondate="+date_obj.strftime('%d.%m.%Y').replace('.','%2F')).text)
+headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
+pagelist = set()
+
+if len(resp)==0:
+	print "Today's Paper is not Out Yet, Please Try Again after few Hours..."
+	raise SystemExit
+
+print "\nDownloading",len(resp), "Pages"
+for img_url in resp:
+	url = img_url['XHighResolution'].replace('\\','/')
+	img_data = ses2.get(url,stream=True,headers=headers).content
+	pagelist.add(str(date_obj.strftime('%d-%m-%Y ')+url.split('_')[-2]+".jpg"))
+	with open(date_obj.strftime('%d-%m-%Y ')+url.split('_')[-2]+".jpg",'wb') as handler:
+		handler.write(img_data)
+pagelist = list(pagelist)
+pagelist.sort()
+
+with open("TheHindu "+date_obj.strftime('%d-%m-%Y')+".pdf","wb") as f: #compile pdf from downloaded images
+	f.write(img2pdf.convert(pagelist))
+
+print "<<PDF Created>>"
+print "<<Removing Image Files>>"
+for file in pagelist:  #remove downloaded image files
+	os.remove(file)
+
+print "<<ALL DONE>>"

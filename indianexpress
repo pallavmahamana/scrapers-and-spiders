@@ -1,0 +1,98 @@
+#!/usr/bin/python
+from selenium import webdriver
+from selenium.webdriver.firefox.options import Options
+import time, requests, json, os
+from bs4 import BeautifulSoup
+from datetime import datetime
+import img2pdf
+
+'''
+number of pages
+http://epaper.indianexpress.com/pagemeta/get/{ID = 1784993}/1-50  -- json response
+
+'''
+
+'''
+generic url for page
+http://epaper.indianexpress.com/1796643/Delhi/August-30,-2018#page/1/1
+http://epaper.indianexpress.com/{ID according to date}/Delhi/{Month}-{D},-{YY}#page/{pagenum}/{zoomlevel from 1,2,3 - we will use 3}
+
+'''
+if os.getuid()!=0:
+	print "Please run this script with root priviledge(sudo) , sudo ./indianexpress"
+	raise SystemExit
+
+def get_ie_todayid():
+	redirecturl = requests.get("http://epaper.indianexpress.com/t/226/latest/Delhi")  #delhi edition , first url
+	if datetime.strptime(redirecturl.url.replace("//","/").split("/")[4],"%B-%d,-%Y#page").date() == datetime.today().date():
+		return redirecturl.url.replace('//','/').split('/')[2]   # return today's IE ID
+	else:
+		return "404"
+
+def get_max_num_pages(id):  #return number of pages in newspaper identified by ID
+	return len(json.loads(requests.get("http://epaper.indianexpress.com/pagemeta/get/"+id+"/1-50").content))
+
+
+def get_ie_page_url(id,date,pageno):   #return unique page url for id and datetime object
+	return date.strftime("http://epaper.indianexpress.com/**ID**/Delhi/%B-%d,-%Y#page/**PGNO**/3").replace("**ID**",id).replace("**PGNO**",str(pageno))
+
+
+
+today_id = get_ie_todayid()
+
+if today_id=="404":
+	print "Today's Paper is not out yet, Try again after few hours"
+	raise SystemExit
+
+
+num_of_pages = get_max_num_pages(today_id)
+
+# print "\nA Browser window will open up in Maximized state now, Please let that window stay on top, dont move, minimize or close that window"
+# raw_input("\n<< Press Any Key To Continue >>")
+
+options = Options()
+options.add_argument("--headless")
+browser = webdriver.Firefox(firefox_options=options)
+browser.maximize_window()
+
+# browser = webdriver.Firefox()
+# browser.maximize_window()
+
+for i in range(num_of_pages):
+	browser.get(get_ie_page_url(today_id,datetime.today(),i+1))
+	if i==0:
+		browser.refresh()
+	browser.execute_script("document.body.style.transform='scale(0.3)'")
+	browser.execute_script("window.scrollTo(0, 1.8*document.body.scrollHeight/4);")
+	time.sleep(5)
+	browser.execute_script("document.body.style.transform='scale(1)'")
+	browser.execute_script("window.scrollTo(0,0);")
+
+	soup = BeautifulSoup(browser.page_source,"lxml")
+	news_source = soup.find("div",{"id":"de-chunks-container"})
+	with open("IEpage"+str(i+1)+".html","w") as file:
+		file.write(str(news_source))
+
+browser.close()
+
+print "<< Converting HTML pages to PNG >>"
+
+
+for i in range(num_of_pages):
+	os.system('sudo xvfb-run --server-args="-screen 0, 1366x768x24" ./webkit2png.py -o IEpage'+str(i+1)+'.png'+' IEpage'+str(i+1)+'.html')
+	os.remove("IEpage"+str(i+1)+".html")
+
+print "<< Compiling Pdf >>"
+
+with open("IndianExpress "+datetime.today().strftime('%d-%m-%Y')+".pdf","wb") as f: #compile pdf from downloaded images
+	f.write(img2pdf.convert(['IEpage'+str(i+1)+'.png' for i in range(num_of_pages)]))
+
+print "<< Cleaning Up... >>"
+
+for i in range(num_of_pages):
+	os.remove("IEpage"+str(i+1)+".png")
+
+os.remove("webkit2png.log")
+os.remove("geckodriver.log")
+
+print "<< DONE >>"
