@@ -4,7 +4,7 @@ from selenium.webdriver.firefox.options import Options
 import time, requests, json, os
 from bs4 import BeautifulSoup
 from datetime import datetime
-import img2pdf
+import img2pdf, sys
 
 '''
 number of pages
@@ -58,7 +58,13 @@ browser.maximize_window()
 # browser = webdriver.Firefox()
 # browser.maximize_window()
 
+print "<< Downloading",num_of_pages,"Pages >>"
 for i in range(num_of_pages):
+	# progresss bar
+	sys.stdout.write('\r')
+	sys.stdout.write("[{:{}}] {:.1f}%".format("="*i, num_of_pages-1, (100/(num_of_pages-1)*i)))
+	sys.stdout.flush()
+
 	browser.get(get_ie_page_url(today_id,datetime.today(),i+1))
 	if i==0:
 		browser.refresh()
@@ -75,14 +81,19 @@ for i in range(num_of_pages):
 
 browser.close()
 
-print "<< Converting HTML pages to PNG >>"
+print "\n<< Converting HTML pages to PNG >>"
 
 
 for i in range(num_of_pages):
+	# progresss bar
+	sys.stdout.write('\r')
+	sys.stdout.write("[{:{}}] {:.1f}%".format("="*i, num_of_pages-1, (100/(num_of_pages-1)*i)))
+	sys.stdout.flush()
+
 	os.system('sudo xvfb-run --server-args="-screen 0, 1366x768x24" ./webkit2png.py -o IEpage'+str(i+1)+'.png'+' IEpage'+str(i+1)+'.html')
 	os.remove("IEpage"+str(i+1)+".html")
 
-print "<< Compiling Pdf >>"
+print "\n<< Compiling Pdf >>"
 
 with open("IndianExpress "+datetime.today().strftime('%d-%m-%Y')+".pdf","wb") as f: #compile pdf from downloaded images
 	f.write(img2pdf.convert(['IEpage'+str(i+1)+'.png' for i in range(num_of_pages)]))
