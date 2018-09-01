@@ -64,7 +64,13 @@ if len(resp)==0:
 	raise SystemExit
 
 print "\nDownloading",len(resp), "Pages"
-for img_url in resp:
+
+for i,img_url in enumerate(resp):
+	# progresss bar
+	sys.stdout.write('\r')
+	sys.stdout.write("[{:{}}] {:.1f}%".format("="*i, len(resp)-1, (100/(len(resp)-1)*i)))
+	sys.stdout.flush()
+
 	url = img_url['XHighResolution'].replace('\\','/')
 	img_data = ses2.get(url,stream=True,headers=headers).content
 	pagelist.add(str(date_obj.strftime('%d-%m-%Y ')+url.split('_')[-2]+".jpg"))
