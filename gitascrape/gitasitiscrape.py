@@ -10,10 +10,6 @@ from bs4 import BeautifulSoup # For parsing and scraping
 
 gitasitis = []
 
-# def create_page_url(chapter,text):
-# 	return URL.replace('CH',str(chapter)).replace('TXT',str(text))
-
-
 def scrape_shloka(url):
 	page = requests.get(url)
 	soup = BeautifulSoup(page.content,'html.parser')
@@ -35,7 +31,7 @@ def scrape_shloka(url):
 		syn = soup.find("div",class_="Synonyms-SA").text.split(';')
 	except:
 		syn = ""
-	
+
 	print(Fore.GREEN+translation+'\n') #For Logging Purpose
 
 	gitasitis.append(
@@ -48,7 +44,7 @@ def scrape_shloka(url):
 
 
 gita = {}
-ch = 1	
+ch = 1
 while(ch<19):
 	page = requests.get("https://asitis.com/"+str(ch))
 	soup = BeautifulSoup(page.content,'html.parser')
@@ -59,15 +55,11 @@ while(ch<19):
 	gita[ch] = gitasitis
 	gitasitis = []
 	ch = ch + 1
-	
-	# while scrape_shloka(ch,sh)!=Exception:
-	# 	sh = sh + 1
-	
+
+# write gitasitis.json
 
 with open('gitasitis.json','w',encoding='utf-8') as fp:
 	json.dump(gita,fp)
-
-
 
 print(Style.RESET_ALL) # reset stdout colors
 
