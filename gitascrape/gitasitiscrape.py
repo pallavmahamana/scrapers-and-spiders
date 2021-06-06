@@ -59,7 +59,7 @@ while(ch<19):
 # write gitasitis.json
 
 with open('gitasitis.json','w',encoding='utf-8') as fp:
-	json.dump(gita,fp)
+	json.dump([gita],fp,indent=4)
 
 print(Style.RESET_ALL) # reset stdout colors
 
