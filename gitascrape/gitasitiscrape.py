@@ -10,7 +10,7 @@ from bs4 import BeautifulSoup # For parsing and scraping
 
 gitasitis = []
 
-def scrape_shloka(url):
+def scrape_shloka(ch,url):
 	page = requests.get(url)
 	soup = BeautifulSoup(page.content,'html.parser')
 	try:
@@ -35,7 +35,7 @@ def scrape_shloka(url):
 	print(Fore.GREEN+translation+'\n') #For Logging Purpose
 
 	gitasitis.append(
-		{"TEXT":url.split('/')[-1].rsplit('.html')[0],
+		{"TEXT":str(ch)+"."+url.split('/')[-1].rsplit('.html')[0],
 		"SHLOKA":shloka,
 		"SYN":syn,
 		"TRANSLATION":translation,
@@ -51,7 +51,7 @@ while(ch<19):
 	h4 = soup.findAll("h4")
 	for ele in h4:
 		if ele.find("a",href=True):
-			scrape_shloka(ele.find("a")['href'])
+			scrape_shloka(ch,ele.find("a")['href'])
 	gita[ch] = gitasitis
 	gitasitis = []
 	ch = ch + 1
