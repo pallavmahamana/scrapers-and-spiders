@@ -11,6 +11,7 @@ TRANSLATION=`echo $TEXT | jq '.TRANSLATION'`
 #uncomment below line to use purport too
 #PURPORT=`echo $TEXT | jq '.PURPORT'`'
 
+echo $(tput setaf 6)BG $RAN | tr -d \"
 echo $(tput setaf 3)$SHLOKA | tr -d \"
 echo $(tput setaf 2)$TRANSLATION | tr -d \"
 #uncomment below line to echo purport too
