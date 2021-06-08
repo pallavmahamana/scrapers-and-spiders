@@ -5,7 +5,7 @@
 # USAGE, quote 1 - for random shloka and translation both
 # USAGE, quote 2 - for random shloka, translation and purport
 #!/bin/bash
-# function quote(){                                           <--- uncomment this and line(33)
+#function quote(){                                           #<--- uncomment this and line(36)
 RAN=`jq '.[0] | .[] | .[] | .TEXT' gitasitis.json | shuf | head -n 1`  # Pick a random TEXT
 TEXT=`jq '.[0] | .[] | .[]' gitasitis.json | jq "select(.TEXT==$RAN)"` # Read a random TEXT from jsonfile
 
@@ -33,4 +33,4 @@ then
 	echo
 	echo $(tput setaf 172)$PURPORT | tr -d \"
 fi
-#}             <-- uncomment this and line(5) to make a function and add it to .bashrc or .zshrc to make it alias
+#}             <-- uncomment this and line(8) to make a function and add it to .bashrc or .zshrc to make it alias
