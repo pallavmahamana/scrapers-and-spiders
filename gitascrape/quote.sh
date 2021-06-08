@@ -9,28 +9,28 @@
 RAN=`jq '.[0] | .[] | .[] | .TEXT' gitasitis.json | shuf | head -n 1`  # Pick a random TEXT
 TEXT=`jq '.[0] | .[] | .[]' gitasitis.json | jq "select(.TEXT==$RAN)"` # Read a random TEXT from jsonfile
 
-SHLOKA=`echo $TEXT | jq '.SHLOKA'`
+SHLOKA=`echo  $TEXT | jq -r '.SHLOKA'`
 
 if [ $# -eq 0 ]
 then
 	echo $(tput setaf 6)BG $RAN | tr -d \"
-	echo $(tput setaf 3)$SHLOKA | tr -d \"
+	echo $(tput setaf 3)$SHLOKA
 elif [ $1 -eq 1 ]
 then
-	TRANSLATION=`echo $TEXT | jq '.TRANSLATION'`
+	TRANSLATION=`echo $TEXT | jq -r '.TRANSLATION'`
 	echo $(tput setaf 6)BG $RAN | tr -d \"
-	echo $(tput setaf 3)$SHLOKA | tr -d \"
+	echo $(tput setaf 3)$SHLOKA
 	echo
-	echo $(tput setaf 2)$TRANSLATION | tr -d \"
+	echo $(tput setaf 2)$TRANSLATION
 elif [ $1 -eq 2 ]
 then
-	TRANSLATION=`echo $TEXT | jq '.TRANSLATION'`
-	PURPORT=`echo $TEXT | jq '.PURPORT'`
+	TRANSLATION=`echo $TEXT | jq -r '.TRANSLATION'`
+	PURPORT=`echo $TEXT | jq -r '.PURPORT'`
 	echo $(tput setaf 6)BG $RAN | tr -d \"
-	echo $(tput setaf 3)$SHLOKA | tr -d \"
+	echo $(tput setaf 3)$SHLOKA
 	echo
-	echo $(tput setaf 2)$TRANSLATION | tr -d \"
+	echo $(tput setaf 2)$TRANSLATION
 	echo
-	echo $(tput setaf 172)$PURPORT | tr -d \"
+	echo $(tput setaf 172)$PURPORT
 fi
 #}             <-- uncomment this and line(8) to make a function and add it to .bashrc or .zshrc to make it alias
