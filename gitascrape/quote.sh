@@ -16,4 +16,4 @@ echo $(tput setaf 3)$SHLOKA | tr -d \"
 echo $(tput setaf 2)$TRANSLATION | tr -d \"
 #uncomment below line to echo purport too
 #echo $(tput setaf 4)$PURPORT | tr -d \"
-#}             <-- uncomment this and line(4) to make a function and add it to .bashrc/.zshrc to make it alias
+#}             <-- uncomment this and line(4) to make a function and add it to .bashrc or .zshrc to make it alias
