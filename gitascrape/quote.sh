@@ -1,4 +1,5 @@
 # This script use jq to get a random shloka from gitasitis.json file and print its shloka,translation,(purport..)
+# dependency(install): jq --> https://stedolan.github.io/jq
 # set the path of gitasitis.json file accordingly in RAN and TEXT variable
 #!/bin/bash
 # function quote(){                                           <--- uncomment this and line(18)
