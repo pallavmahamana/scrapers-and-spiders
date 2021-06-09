@@ -6,7 +6,7 @@
 # USAGE, quote 1 - for random shloka and translation both
 # USAGE, quote 2 - for random shloka, translation and purport
 #!/bin/bash
-#function gita(){                                           #<--- uncomment this and line(50)
+#function gita(){                                           #<--- uncomment this and line(55)
 RAN=`jq '.[0] | .[] | .[] | .TEXT' gitasitis.json | shuf | head -n 1`  # Pick a random TEXT
 TEXT=`jq '.[0] | .[] | .[]' gitasitis.json | jq "select(.TEXT==$RAN)"` # Read a random TEXT from jsonfile
 
