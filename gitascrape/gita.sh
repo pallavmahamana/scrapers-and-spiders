@@ -19,6 +19,11 @@ then
 	echo $(tput setaf 3)$SHLOKA
 elif [ $1 -eq 0 ]
 then
+	if [ $# -eq 1 ]
+	then
+		echo "Please provide an argument for shloka number eg. gita 0 2.47"
+		return 
+	fi
 	TEXT=`jq '.[0] | .[] | .[]' gitasitis.json | jq "select(.TEXT==\"${2}\")"`
 	SHLOKA=`echo  $TEXT | jq -r '.SHLOKA'`
 	TRANSLATION=`echo $TEXT | jq -r '.TRANSLATION'`
