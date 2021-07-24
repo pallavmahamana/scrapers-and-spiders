@@ -17,5 +17,5 @@ usage: sudo ./indianexpress - Downloads todays Epaper in pdf format.
 
 ### Gita Scraper
 
-**gitasitiscrape.py** is python scraper which scrape asitis.com to spit out a json file of whole gita
+**gitasitiscrape.py** is python scraper which scrape asitis.com to spit out a json file of whole gita.
 
